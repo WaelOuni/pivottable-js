@@ -1,7 +1,8 @@
 # PivotTableJsExample
 
-Why i create this repo :
-I looked up in the internet and i can't find any angular source code using the free opensource library of pivotTableJs, so ...
+Why i create this repo ?
+
+==> I looked up in the internet and i can't find any angular source code using the free opensource library of pivotTableJs, so ...
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.1.4.
 
