@@ -29,7 +29,7 @@ export class AppComponent {
       { "id": "1005", "name": "Patrick", "account": "56", "max_per_week": "10" }],
       {
         // initial colomns and rows of the pivot table
-        cols: ["max_per_week", "account"], rows: ["id", "name"]
+        cols: ["max_per_week", "account"], rows: ["id", "name"];
       });
   }
 }
