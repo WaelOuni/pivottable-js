@@ -1,5 +1,11 @@
 # PivotTableJsExample
 
+Why i create this repo ?
+
+==> I looked up in the internet and i can't find any angular source code using the free opensource library of pivotTableJs, so ...
+
+![Alt text](/screenshot_pivot_table.PNG?raw=true "Screen shot")
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.1.4.
 
 ## Development server
