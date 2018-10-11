@@ -1,0 +1,4 @@
+.expired { background-color: #F08080 !important; }
+
+/* uncomment line below to hide total colomn and row, and hide aggregator select and render select respectively */
+/* .pvtTotal, .pvtTotalLabel, .pvtGrandTotal , .pvtAggregator, .pvtRenderer {display: none} */
