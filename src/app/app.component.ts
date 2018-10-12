@@ -28,33 +28,71 @@ export class AppComponent {
   }
 
   ngAfterViewInit() {
+    if (!this.el ||
+      !this.el.nativeElement ||
+      !this.el.nativeElement.children) {
+      console.log('cant build without element');
+      return;
+    }
+
+
     let container = this.el.nativeElement;
     let inst = jQuery(container);
     let targetElement = inst.find("#output");
-
     var sum = $.pivotUtilities.aggregatorTemplates.sum;
     var Sum = function () { return sum()(["account"]); }
-
+    var _this = this;
     targetElement.pivotUI(
-      //data : json array of fake objects
       this.dataJson,
       {
         aggregators: { Sum },
-        // initial colomns and rows of the pivot table
         rows: ["name"], cols: ["account"],
         vals: ["account"],
         aggregatorName: "Sum",
         rendererName: "Table",
-        rendererOptions: {
-          table: {
-            clickCallback: function (e, value, filters, pivotData) {
-              var names = [];
-              pivotData.forEachMatchingRecord(filters,
-                function (record) { names.push(record.account); });
-              alert(value);
-            }
+        onRefresh: function () {
+          var config = targetElement.data("pivotUIOptions");
+          $("th:contains(account)").css("background-color", "yellow");
+          let rowsArray = (config.rows as Array<any>);
+          if (rowsArray.length > 3) {
+            rowsArray.splice(rowsArray.length - 1, 1);
+            var config_copy = JSON.parse(JSON.stringify(config));
+            //delete some values which will not serialize to JSON
+            delete config_copy["aggregators"];
+            delete config_copy["renderers"];
+            localStorage.setItem("pivotConfig", JSON.stringify(config_copy));
+            _this.refresh();
           }
         }
-      }, true);
+      });
   }
+
+  refresh(): void {
+    let container = this.el.nativeElement;
+    let inst = jQuery(container);
+    let targetElement = inst.find("#output");
+    var sum = $.pivotUtilities.aggregatorTemplates.sum;
+    var Sum = function () { return sum()(["account"]); }
+    var _this = this;
+    let options = JSON.parse(localStorage.getItem("pivotConfig"));
+    options["aggregators"] = { Sum };
+    options["onRefresh"] = function () {
+      var config = targetElement.data("pivotUIOptions");
+      $("th:contains(account)").css("background-color", "yellow");
+      let rowsArray = (config.rows as Array<any>);
+      if (rowsArray.length > 3) {
+        rowsArray.splice(rowsArray.length - 1, 1);
+        var config_copy = JSON.parse(JSON.stringify(config));
+        //delete some values which will not serialize to JSON
+        delete config_copy["aggregators"];
+        delete config_copy["renderers"];
+        localStorage.setItem("pivotConfig", JSON.stringify(config_copy));
+        _this.refresh();
+      }
+    }
+    targetElement.pivotUI(
+      this.dataJson,
+      options, true);
+  }
+
 }
