@@ -2,8 +2,6 @@ import { Component, OnInit, ElementRef, Input, Inject, ViewEncapsulation } from 
 
 declare var jQuery: any;
 declare var $: any;
-import 'pivottable/dist/pivot.min.js';
-import 'pivottable/dist/pivot.min.css';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +20,7 @@ export class AppComponent {
   { "id": "2003", "name": "Paul", "account": "5775", "max_per_week": "800", "is_gold": true },
   { "id": "2004", "name": "Mohamed", "account": "2233", "max_per_week": "360", "is_gold": false },
   { "id": "2005", "name": "Olivier", "account": "56", "max_per_week": "10" }];
+
   private el: ElementRef;
   constructor(@Inject(ElementRef) el: ElementRef) {
     this.el = el;
@@ -35,13 +34,12 @@ export class AppComponent {
       return;
     }
 
-
     let container = this.el.nativeElement;
     let inst = jQuery(container);
     let targetElement = inst.find("#output");
     var sum = $.pivotUtilities.aggregatorTemplates.sum;
     var Sum = function () { return sum()(["account"]); }
-    var _this = this;
+    var __this = this;
     targetElement.pivotUI(
       this.dataJson,
       {
@@ -51,48 +49,34 @@ export class AppComponent {
         aggregatorName: "Sum",
         rendererName: "Table",
         onRefresh: function () {
-          var config = targetElement.data("pivotUIOptions");
-          $("th:contains(account)").css("background-color", "yellow");
-          let rowsArray = (config.rows as Array<any>);
-          if (rowsArray.length > 3) {
-            rowsArray.splice(rowsArray.length - 1, 1);
-            var config_copy = JSON.parse(JSON.stringify(config));
-            //delete some values which will not serialize to JSON
-            delete config_copy["aggregators"];
-            delete config_copy["renderers"];
-            localStorage.setItem("pivotConfig", JSON.stringify(config_copy));
-            _this.refresh();
-          }
+          __this.onPivotRefresh(__this, targetElement, Sum);
         }
       });
   }
 
-  refresh(): void {
-    let container = this.el.nativeElement;
-    let inst = jQuery(container);
-    let targetElement = inst.find("#output");
-    var sum = $.pivotUtilities.aggregatorTemplates.sum;
-    var Sum = function () { return sum()(["account"]); }
-    var _this = this;
+  restore(__this, targetElement, Sum): void {
     let options = JSON.parse(localStorage.getItem("pivotConfig"));
     options["aggregators"] = { Sum };
     options["onRefresh"] = function () {
-      var config = targetElement.data("pivotUIOptions");
-      $("th:contains(account)").css("background-color", "yellow");
-      let rowsArray = (config.rows as Array<any>);
-      if (rowsArray.length > 3) {
-        rowsArray.splice(rowsArray.length - 1, 1);
-        var config_copy = JSON.parse(JSON.stringify(config));
-        //delete some values which will not serialize to JSON
-        delete config_copy["aggregators"];
-        delete config_copy["renderers"];
-        localStorage.setItem("pivotConfig", JSON.stringify(config_copy));
-        _this.refresh();
-      }
+      __this.onPivotRefresh(__this, targetElement, Sum);
+    };
+    targetElement.pivotUI(this.dataJson, options, true);
+  }
+
+  private MAX_ROWS: number = 3;
+  onPivotRefresh(__this, targetElement, Sum) {
+    var config = targetElement.data("pivotUIOptions");
+    let rowsArray = (config.rows as Array<any>);
+    if (rowsArray.length > this.MAX_ROWS) {
+      alert("You have to select only " + __this.MAX_ROWS + " ROWs !")
+      rowsArray.splice(rowsArray.length - 1, 1);
+      var config_copy = JSON.parse(JSON.stringify(config));
+      //delete some values which will not serialize to JSON
+      delete config_copy["aggregators"];
+      delete config_copy["renderers"];
+      localStorage.setItem("pivotConfig", JSON.stringify(config_copy));
+      __this.restore(__this, targetElement, Sum);
     }
-    targetElement.pivotUI(
-      this.dataJson,
-      options, true);
   }
 
 }
